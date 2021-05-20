@@ -1,4 +1,4 @@
-from simulator import move_forward, turn_left, turn_right, reset_map, set_speed, show_animation, test
+from simulator import move_forward, turn_left, turn_right, reset_map, set_speed, show_animation, test, set_map
 # DO NOT MODIFY LINE 1
 # You may import any libraries you want. But you may not import simulator_hidden
 
@@ -110,8 +110,10 @@ for i in range(num_epochs):
 		ice = 0
 		many_step = 0
 		epsilon *= 0.95
-	
 	#raise NotImplementedError
+
+print(q_table.reshape((32, 3)))
+
 
 ####################################
 
@@ -145,7 +147,7 @@ while True:
 		break
 	
 
- raise NotImplementedError
+# raise NotImplementedError
 ###############################
 
 ### If you want to try moving around the map with your keyboard, uncomment the below lines 
