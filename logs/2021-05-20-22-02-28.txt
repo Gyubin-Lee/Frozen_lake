@@ -19,22 +19,20 @@ orientation = ['N','E','S','W']  # List of orientations
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
 num_epochs = 10000
-alpha = 0.15
-gamma = 0.95
-epsilon = 0.3
+alpha = 0.1
+gamma = 0.99
+epsilon = 0.5
 q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
 
 # Define your reward function
-max_step = 100
-
-def reward(done, dead):
+def reward(done, dead, step):
 	if done:
 		if dead:
 			return -1
 		else:
-			return 5
+			return 1
 
-	return -1/max_step
+	return -0.01
 	raise NotImplementedError
 
 def return_ori_num(ori):
@@ -50,7 +48,7 @@ def return_ori_num(ori):
 def e_greedy(ori_num, l, f, r, eps):
 	p = np.random.rand()
 	if p < eps: #exploration
-		action_num = (np.random.randint(3, 6)*np.random.randint(2, 5))%3
+		action_num = np.random.randint(0, 3)
 		action = actions[action_num]
 
 	else: #exploitation
@@ -68,7 +66,7 @@ for i in range(num_epochs):
 
 	step = 0
 	#Q-learning
-	while step < max_step:
+	while step<100:
 		ori_num = return_ori_num(ori)
 		old_l, old_f, old_r = sensor
 
@@ -84,7 +82,7 @@ for i in range(num_epochs):
 		step += 1
 		
 		#update Q-table
-		rwrd = reward(done, dead)
+		rwrd = reward(done, dead, step)
 		new_ori_num = return_ori_num(ori)
 		l, f, r = sensor
 		max_qsa = np.max(q_table[new_ori_num][l][f][r])
@@ -101,6 +99,8 @@ for i in range(num_epochs):
 	else:
 		many_step += 1
 	
+
+
 	if i%100 == 99:
 		print("for {0} epochs with epsilon".format(i+1))
 		print("  correct: {}%".format(correct))
@@ -109,43 +109,9 @@ for i in range(num_epochs):
 		correct = 0
 		ice = 0
 		many_step = 0
-		epsilon *= 0.975
+		epsilon *= 0.95
 	
 	#raise NotImplementedError
-
-####################################
-
-######### scoring model ############
-
-score = 0
-for i in range(1000):
-	(x, y), ori, sensor, done = reset_map()
-	
-	step = 0
-	while step < 50:
-		
-		ori_num = return_ori_num(ori)
-		l, f, r = sensor
-
-		action_num = np.argmax(q_table[ori_num][l][f][r])
-		action = actions[action_num]
-
-		if old_f == 1 and action_num == 0:	
-			dead = True
-		else:
-			dead = False
-		
-		(x, y), ori, sensor, done = action()
-		step += 1
-
-		if done:
-			break
-	
-	if done:
-		if not dead:
-			score += 1
-
-print("Model score: {}%".format(score/10))
 
 ####################################
 
@@ -154,7 +120,6 @@ np.save("q_table", q_table)
 set_speed(3)
 test()
 (x, y), ori, sensor, done = reset_map()
-
 
 ###############################
 #### Implement step 4 here ####

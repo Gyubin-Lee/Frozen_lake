@@ -119,10 +119,10 @@ for i in range(num_epochs):
 
 score = 0
 for i in range(1000):
-	(x, y), ori, sensor, done = reset_map()
-	
 	step = 0
 	while step < 50:
+		
+		(x, y), ori, sensor, done = reset_map()
 		
 		ori_num = return_ori_num(ori)
 		l, f, r = sensor

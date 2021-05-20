@@ -115,46 +115,11 @@ for i in range(num_epochs):
 
 ####################################
 
-######### scoring model ############
-
-score = 0
-for i in range(1000):
-	(x, y), ori, sensor, done = reset_map()
-	
-	step = 0
-	while step < 50:
-		
-		ori_num = return_ori_num(ori)
-		l, f, r = sensor
-
-		action_num = np.argmax(q_table[ori_num][l][f][r])
-		action = actions[action_num]
-
-		if old_f == 1 and action_num == 0:	
-			dead = True
-		else:
-			dead = False
-		
-		(x, y), ori, sensor, done = action()
-		step += 1
-
-		if done:
-			break
-	
-	if done:
-		if not dead:
-			score += 1
-
-print("Model score: {}%".format(score/10))
-
-####################################
-
 np.save("q_table", q_table)
 
 set_speed(3)
 test()
 (x, y), ori, sensor, done = reset_map()
-
 
 ###############################
 #### Implement step 4 here ####
