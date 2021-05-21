@@ -18,10 +18,10 @@ orientation = ['N','E','S','W']  # List of orientations
 
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
-num_epochs = 10000
+num_epochs = 50000
 alpha = 0.1
 gamma = 0.99
-epsilon = 0.1
+epsilon = 0.5
 q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
 
 # Define your reward function
@@ -32,8 +32,8 @@ def reward(done, dead):
 		if dead:
 			return -1
 		else:
-			return 1
-	return -1.5/max_step
+			return 10
+	return -1/max_step
 	raise NotImplementedError
 
 def return_ori_num(ori):

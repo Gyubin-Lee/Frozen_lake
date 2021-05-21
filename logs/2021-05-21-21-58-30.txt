@@ -32,8 +32,8 @@ def reward(done, dead):
 		if dead:
 			return -1
 		else:
-			return 1
-	return -1.5/max_step
+			return 2
+	return -1/max_step
 	raise NotImplementedError
 
 def return_ori_num(ori):
