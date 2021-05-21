@@ -18,7 +18,7 @@ orientation = ['N','E','S','W']  # List of orientations
 
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
-num_epochs = 50000
+num_epochs = 20000
 alpha = 0.1
 gamma = 0.99
 epsilon = 0.5
@@ -33,6 +33,7 @@ def reward(done, dead):
 			return -1
 		else:
 			return 1
+
 	return -1/max_step
 	raise NotImplementedError
 
@@ -108,7 +109,7 @@ for i in range(num_epochs):
 		correct = 0
 		ice = 0
 		many_step = 0
-		epsilon *= 0.99
+		epsilon *= 0.975
 	
 	#raise NotImplementedError
 
