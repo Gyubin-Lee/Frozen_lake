@@ -19,7 +19,7 @@ orientation = ['N','E','S','W']  # List of orientations
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
 num_epochs = 15000
-alpha = 0.02
+alpha = 0.01
 gamma = 0.99
 epsilon = 0.2
 q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
@@ -35,7 +35,7 @@ def reward(done, dead, action_num):
 			return 1
 	
 	if action_num == 0:
-		return -0.05/max_step
+		return -0.2/max_step
 	
 	return -1/max_step
 	raise NotImplementedError
