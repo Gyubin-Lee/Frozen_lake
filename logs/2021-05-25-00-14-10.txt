@@ -18,10 +18,10 @@ orientation = ['N','E','S','W']  # List of orientations
 
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
-num_epochs = 10000
-alpha = 0.05
+num_epochs = 15000
+alpha = 0.02
 gamma = 0.99
-epsilon = 0.3
+epsilon = 0.2
 q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
 
 # Define your reward function
@@ -32,12 +32,12 @@ def reward(done, dead, action_num):
 		if dead:
 			return -1
 		else:
-			return 2
+			return 1
 	
 	if action_num == 0:
-		return -1/max_step
+		return -0.05/max_step
 	
-	return -0.1
+	return -1/max_step
 	raise NotImplementedError
 
 def return_ori_num(ori):
@@ -61,6 +61,10 @@ def e_greedy(ori_num, l, f, r, eps):
 		action = actions[action_num]
 	
 	return action, action_num
+
+correct = 0
+ice = 0
+many_step = 0
 
 for i in range(num_epochs):
 	(x, y), ori, sensor, done = reset_map()
@@ -92,7 +96,22 @@ for i in range(num_epochs):
 		if done:
 			break
 	
+	if done:
+		if dead:
+			ice += 1
+		else:
+			correct += 1
+	else:
+		many_step += 1
+	
 	if i%100 == 99:
+		print("for {0} epochs with epsilon".format(i+1))
+		print("  correct: {}%".format(correct))
+		print("  number of fall into ice: {}%".format(ice))
+		print("  number of violate max step: {}%".format(many_step))
+		correct = 0
+		ice = 0
+		many_step = 0
 		epsilon *= 0.98
 	
 	#raise NotImplementedError

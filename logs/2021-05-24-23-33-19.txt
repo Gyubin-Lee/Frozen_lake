@@ -18,10 +18,10 @@ orientation = ['N','E','S','W']  # List of orientations
 
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
-num_epochs = 10000
-alpha = 0.05
+num_epochs = 15000
+alpha = 0.02
 gamma = 0.99
-epsilon = 0.3
+epsilon = 0.2
 q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
 
 # Define your reward function
@@ -32,12 +32,12 @@ def reward(done, dead, action_num):
 		if dead:
 			return -1
 		else:
-			return 2
+			return 1
 	
 	if action_num == 0:
-		return -1/max_step
+		return 0
 	
-	return -0.1
+	return -1/max_step
 	raise NotImplementedError
 
 def return_ori_num(ori):
@@ -105,7 +105,6 @@ set_speed(3)
 test()
 (x, y), ori, sensor, done = reset_map()
 
-
 ###############################
 #### Implement step 4 here ####
 ###############################
@@ -129,7 +128,6 @@ while True:
 	if done:
 		break
 	
-
 #raise NotImplementedError
 ###############################
 

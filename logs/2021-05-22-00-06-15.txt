@@ -19,25 +19,21 @@ orientation = ['N','E','S','W']  # List of orientations
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
 num_epochs = 10000
-alpha = 0.05
+alpha = 0.1
 gamma = 0.99
-epsilon = 0.3
+epsilon = 0.1
 q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
 
 # Define your reward function
 max_step = 100
 
-def reward(done, dead, action_num):
+def reward(done, dead):
 	if done:
 		if dead:
 			return -1
 		else:
-			return 2
-	
-	if action_num == 0:
-		return -1/max_step
-	
-	return -0.1
+			return 1
+	return -1.5/max_step
 	raise NotImplementedError
 
 def return_ori_num(ori):
@@ -62,6 +58,10 @@ def e_greedy(ori_num, l, f, r, eps):
 	
 	return action, action_num
 
+correct = 0
+ice = 0
+many_step = 0
+
 for i in range(num_epochs):
 	(x, y), ori, sensor, done = reset_map()
 
@@ -83,7 +83,7 @@ for i in range(num_epochs):
 		step += 1
 		
 		#update Q-table
-		rwrd = reward(done, dead, action_num)
+		rwrd = reward(done, dead)
 		new_ori_num = return_ori_num(ori)
 		l, f, r = sensor
 		max_qsa = np.max(q_table[new_ori_num][l][f][r])
@@ -92,10 +92,59 @@ for i in range(num_epochs):
 		if done:
 			break
 	
+	if done:
+		if dead:
+			ice += 1
+		else:
+			correct += 1
+	else:
+		many_step += 1
+	
 	if i%100 == 99:
-		epsilon *= 0.98
+		print("for {0} epochs with epsilon".format(i+1))
+		print("  correct: {}%".format(correct))
+		print("  number of fall into ice: {}%".format(ice))
+		print("  number of violate max step: {}%".format(many_step))
+		correct = 0
+		ice = 0
+		many_step = 0
+		epsilon *= 0.99
 	
 	#raise NotImplementedError
+
+####################################
+
+######### scoring model ############
+
+score = 0
+for i in range(1000):
+	(x, y), ori, sensor, done = reset_map()
+	
+	step = 0
+	while step < 50:
+		
+		ori_num = return_ori_num(ori)
+		l, f, r = sensor
+
+		action_num = np.argmax(q_table[ori_num][l][f][r])
+		action = actions[action_num]
+
+		if old_f == 1 and action_num == 0:	
+			dead = True
+		else:
+			dead = False
+		
+		(x, y), ori, sensor, done = action()
+		step += 1
+
+		if done:
+			break
+	
+	if done:
+		if not dead:
+			score += 1
+
+print("Model score: {}%".format(score/10))
 
 ####################################
 
