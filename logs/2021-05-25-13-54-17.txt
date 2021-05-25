@@ -28,11 +28,11 @@ q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
 max_step = 100
 
 def reward(done, dead, action_num):
-	if dead:
-		return -1
-	
 	if done:
-		return 10
+		if dead:
+			return -1
+		else:
+			return 1
 	
 	if action_num == 0:
 		return 0
@@ -74,11 +74,9 @@ for i in range(num_epochs):
 
 		#select action by e-greedy policy
 		action, action_num = e_greedy(old_ori_num, old_l, old_f, old_r, epsilon)
-		
-		if old_f == 1 and action_num == 0:	#terminate episode before robot falls into the lake
+		if old_f == 1 and action_num == 0:	
 			dead = True
-			rwrd = reward(done, dead, action_num)
-			q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*rwrd
+			q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*-1
 			break
 		else:
 			dead = False
@@ -86,11 +84,6 @@ for i in range(num_epochs):
 		#do transition
 		(x, y), ori, sensor, done = action()
 		step += 1
-
-		if done: #terminate when robot arrived at the end point
-			rwrd = reward(done, dead, action_num)
-			q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*rwrd
-			break
 		
 		#update Q-table
 		rwrd = reward(done, dead, action_num)
@@ -99,6 +92,8 @@ for i in range(num_epochs):
 		max_qsa = np.max(q_table[ori_num][l][f][r])
 		q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*(rwrd + gamma*max_qsa)
 
+		if done:
+			break
 	
 	if i%100 == 99:
 		epsilon *= 0.98

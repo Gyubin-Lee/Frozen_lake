@@ -74,8 +74,7 @@ for i in range(num_epochs):
 
 		#select action by e-greedy policy
 		action, action_num = e_greedy(old_ori_num, old_l, old_f, old_r, epsilon)
-		
-		if old_f == 1 and action_num == 0:	#terminate episode before robot falls into the lake
+		if old_f == 1 and action_num == 0:	
 			dead = True
 			rwrd = reward(done, dead, action_num)
 			q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*rwrd
@@ -87,7 +86,7 @@ for i in range(num_epochs):
 		(x, y), ori, sensor, done = action()
 		step += 1
 
-		if done: #terminate when robot arrived at the end point
+		if done:
 			rwrd = reward(done, dead, action_num)
 			q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*rwrd
 			break

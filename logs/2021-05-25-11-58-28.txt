@@ -18,7 +18,7 @@ orientation = ['N','E','S','W']  # List of orientations
 
 # Hyperparameters: Feel free to change all of these!
 actions = [move_forward, turn_left, turn_right]
-num_epochs = 15000
+num_epochs = 10000
 alpha = 0.05
 gamma = 0.99
 epsilon = 0.3
@@ -28,16 +28,16 @@ q_table = np.zeros((4, 2, 2, 2, 3)) #(4, 2, 2, 2) for state, 3 for action
 max_step = 100
 
 def reward(done, dead, action_num):
-	if dead:
-		return -1
-	
 	if done:
-		return 10
+		if dead:
+			return -1
+		else:
+			return 2
 	
 	if action_num == 0:
-		return 0
+		return -1/max_step
 	
-	return -0.05
+	return -0.1
 	raise NotImplementedError
 
 def return_ori_num(ori):
@@ -66,39 +66,31 @@ for i in range(num_epochs):
 	(x, y), ori, sensor, done = reset_map()
 
 	step = 0
-	ori_num = return_ori_num(ori)
 	#Q-learning
 	while step < max_step:
-		old_ori_num = ori_num
+		ori_num = return_ori_num(ori)
 		old_l, old_f, old_r = sensor
 
 		#select action by e-greedy policy
-		action, action_num = e_greedy(old_ori_num, old_l, old_f, old_r, epsilon)
-		
-		if old_f == 1 and action_num == 0:	#terminate episode before robot falls into the lake
+		action, action_num = e_greedy(ori_num, old_l, old_f, old_r, epsilon)
+		if old_f == 1 and action_num == 0:	
 			dead = True
-			rwrd = reward(done, dead, action_num)
-			q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*rwrd
-			break
 		else:
 			dead = False
 
 		#do transition
 		(x, y), ori, sensor, done = action()
 		step += 1
-
-		if done: #terminate when robot arrived at the end point
-			rwrd = reward(done, dead, action_num)
-			q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*rwrd
-			break
 		
 		#update Q-table
 		rwrd = reward(done, dead, action_num)
-		ori_num = return_ori_num(ori)
+		new_ori_num = return_ori_num(ori)
 		l, f, r = sensor
-		max_qsa = np.max(q_table[ori_num][l][f][r])
-		q_table[old_ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[old_ori_num][old_l][old_f][old_r][action_num] + alpha*(rwrd + gamma*max_qsa)
+		max_qsa = np.max(q_table[new_ori_num][l][f][r])
+		q_table[ori_num][old_l][old_f][old_r][action_num] = (1-alpha)*q_table[ori_num][old_l][old_f][old_r][action_num] + alpha*(rwrd + gamma*max_qsa)
 
+		if done:
+			break
 	
 	if i%100 == 99:
 		epsilon *= 0.98
